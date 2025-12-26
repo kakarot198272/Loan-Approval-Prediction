@@ -21,3 +21,27 @@ using business-aware cost functions.
 > Dataset files are not committed to this repository.
 
 ## Project Structure
+## Methods
+- Exploratory Data Analysis (EDA)
+- Feature preprocessing with imputation and encoding
+- Models:
+  - Logistic Regression
+  - Random Forest
+  - XGBoost
+  - Support Vector Machine
+  - Neural Networks (MLP)
+- Ensemble learning:
+  - Soft Voting
+  - Stacking
+- Cost-sensitive threshold optimization
+
+## Evaluation Metrics
+- ROC-AUC
+- Precision / Recall / F1-score
+- Balanced Accuracy
+- Cost-sensitive profit curves
+
+## How to Run
+```bash
+pip install -r requirements.txt
+python main.py
