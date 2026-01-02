@@ -2,6 +2,7 @@
 Loan Approval Prediction
 Entry point for training and evaluating models.
 """
+from src.evaluation import plot_roc_curves
 
 import os
 import pandas as pd
