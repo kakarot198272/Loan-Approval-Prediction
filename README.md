@@ -42,10 +42,8 @@ using business-aware cost functions.
 - Cost-sensitive profit curves
 
 ## How to Run
-```bash
 pip install -r requirements.txt
 python main.py
-
 
 ## Results Summary
 
