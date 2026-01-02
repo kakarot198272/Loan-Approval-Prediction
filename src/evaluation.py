@@ -1,16 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, auc
-import os
-
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
     roc_auc_score,
     accuracy_score,
     precision_score,
     recall_score,
-    f1_score
+    f1_score,
+    roc_curve,
+    auc
 )
+import os
 
 
 def evaluate_models(
@@ -23,10 +23,13 @@ def evaluate_models(
 ):
     """
     Trains each model in a pipeline and evaluates on validation data.
-    Returns a DataFrame with metrics.
+    Returns:
+        - results_df: DataFrame with evaluation metrics
+        - model_probs: dict {model_name: predicted probabilities}
     """
 
     results = []
+    model_probs = {}
 
     for name, model in models.items():
         pipe = Pipeline(steps=[
@@ -39,22 +42,27 @@ def evaluate_models(
         y_prob = pipe.predict_proba(X_valid)[:, 1]
         y_pred = pipe.predict(X_valid)
 
-        metrics = {
+        results.append({
             "model": name,
             "roc_auc": roc_auc_score(y_valid, y_prob),
             "accuracy": accuracy_score(y_valid, y_pred),
             "precision": precision_score(y_valid, y_pred),
             "recall": recall_score(y_valid, y_pred),
             "f1": f1_score(y_valid, y_pred)
-        }
+        })
 
-        results.append(metrics)
+        model_probs[name] = y_prob
+
+    results_df = pd.DataFrame(results).sort_values(
+        by="roc_auc", ascending=False
+    )
+
+    return results_df, model_probs
+
 
 def plot_roc_curves(model_probs, y_true, save_path):
     """
-    model_probs: dict -> {model_name: predicted_probabilities}
-    y_true: true labels
-    save_path: path to save ROC image
+    Plots ROC curves for all models and saves the figure.
     """
 
     plt.figure(figsize=(8, 6))
@@ -74,9 +82,3 @@ def plot_roc_curves(model_probs, y_true, save_path):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, dpi=150)
     plt.close()
-
-
-    return pd.DataFrame(results).sort_values(
-        by="roc_auc", ascending=False
-    )
-
