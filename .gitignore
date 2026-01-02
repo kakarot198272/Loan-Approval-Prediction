@@ -1,14 +1,28 @@
-# Data files
+# ======================
+# Data files (DO NOT COMMIT)
+# ======================
 data/*.csv
 
+# ======================
 # Outputs
-outputs/
+# Ignore all outputs by default
+# ======================
+outputs/*
 
+# Allow figures directory and ROC image
+!outputs/figures/
+!outputs/figures/roc_curves.png
+
+# ======================
 # Virtual environment
+# ======================
 venv/
 
+# ======================
 # Python cache
+# ======================
 __pycache__/
 *.pyc
+
 
 
