@@ -2,7 +2,6 @@
 Loan Approval Prediction
 Entry point for training and evaluating models.
 """
-from src.evaluation import plot_roc_curves
 
 import os
 import pandas as pd
@@ -14,7 +13,7 @@ from src.data import (
 )
 from src.preprocessing import build_preprocessor
 from src.models import get_models
-from src.evaluation import evaluate_models
+from src.evaluation import evaluate_models, plot_roc_curves
 
 
 # ------------------
@@ -22,6 +21,7 @@ from src.evaluation import evaluate_models
 # ------------------
 DATA_DIR = "data"
 OUTPUT_DIR = "outputs"
+FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 
 TRAIN_PATH = os.path.join(DATA_DIR, "train.csv")
 TEST_PATH = os.path.join(DATA_DIR, "test.csv")
@@ -31,6 +31,7 @@ TEST_SIZE = 0.2
 RANDOM_STATE = 42
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 
 def main():
@@ -42,7 +43,8 @@ def main():
 
     print("Creating train-validation split...")
     X_train, X_valid, y_train, y_valid = make_train_valid_split(
-        X, y,
+        X,
+        y,
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE
     )
@@ -57,7 +59,7 @@ def main():
         categorical_features
     )
 
-    # Compute scale_pos_weight for XGBoost (if used)
+    # Compute scale_pos_weight for XGBoost
     scale_pos_weight = y_train.value_counts()[0] / y_train.value_counts()[1]
 
     print("Loading models...")
@@ -67,24 +69,32 @@ def main():
     )
 
     print("Evaluating models...")
-    results_df = evaluate_models(
-        models,
-        preprocessor,
-        X_train,
-        X_valid,
-        y_train,
-        y_valid
+    results_df, model_probs = evaluate_models(
+        models=models,
+        preprocessor=preprocessor,
+        X_train=X_train,
+        X_valid=X_valid,
+        y_train=y_train,
+        y_valid=y_valid
     )
 
     print("\nModel comparison (sorted by ROC-AUC):")
     print(results_df.to_string(index=False))
 
-    # Save results
-    output_path = os.path.join(OUTPUT_DIR, "baseline_model_results.csv")
-    results_df.to_csv(output_path, index=False)
-    print(f"\nResults saved to: {output_path}")
+    # Save evaluation results
+    results_path = os.path.join(OUTPUT_DIR, "baseline_model_results.csv")
+    results_df.to_csv(results_path, index=False)
+    print(f"\nResults saved to: {results_path}")
+
+    # Plot and save ROC curves
+    roc_path = os.path.join(FIGURES_DIR, "roc_curves.png")
+    plot_roc_curves(
+        model_probs=model_probs,
+        y_true=y_valid,
+        save_path=roc_path
+    )
+    print(f"ROC curves saved to: {roc_path}")
 
 
 if __name__ == "__main__":
     main()
-
