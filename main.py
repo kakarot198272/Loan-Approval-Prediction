@@ -2,6 +2,7 @@
 Loan Approval Prediction
 Entry point for training and evaluating models.
 """
+print(">>> RUNNING UPDATED MAIN.PY <<<")
 
 import os
 import pandas as pd
