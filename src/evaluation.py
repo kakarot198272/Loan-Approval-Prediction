@@ -50,6 +50,32 @@ def evaluate_models(
 
         results.append(metrics)
 
+def plot_roc_curves(model_probs, y_true, save_path):
+    """
+    model_probs: dict -> {model_name: predicted_probabilities}
+    y_true: true labels
+    save_path: path to save ROC image
+    """
+
+    plt.figure(figsize=(8, 6))
+
+    for model_name, probs in model_probs.items():
+        fpr, tpr, _ = roc_curve(y_true, probs)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, label=f"{model_name} (AUC = {roc_auc:.3f})")
+
+    plt.plot([0, 1], [0, 1], linestyle="--", color="gray")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve Comparison")
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path, dpi=150)
+    plt.close()
+
+
     return pd.DataFrame(results).sort_values(
         by="roc_auc", ascending=False
     )
